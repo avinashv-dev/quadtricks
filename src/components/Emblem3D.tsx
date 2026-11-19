@@ -1,7 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, Lightformer, Sparkles } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 const BODY: [number, number][] = [
@@ -22,7 +22,7 @@ function toShape(pts: [number, number][]) {
   return s;
 }
 
-const extrude = { depth: 0.9, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.07, bevelSegments: 6 };
+const extrude = { depth: 0.9, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.07, bevelSegments: 3 };
 
 // Scroll keyframes: [x, y, z, rotX, rotY, scale] at each section stop
 const KEYS = [
@@ -34,11 +34,6 @@ const KEYS = [
   [0, 0.2, 0, 0, Math.PI * 4, 0.58],
 ];
 
-function scrollProgress() {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-}
-
 function sample(p: number) {
   const f = p * (KEYS.length - 1);
   const i = Math.min(KEYS.length - 2, Math.floor(f));
@@ -47,24 +42,28 @@ function sample(p: number) {
   return KEYS[i]!.map((v, k) => v + (KEYS[i + 1]![k]! - v) * e);
 }
 
-function Emblem() {
+function Emblem({ scroll, constrained }: { scroll: { current: number }; constrained: boolean }) {
   const group = useRef<THREE.Group>(null);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const [body, tri] = useMemo(() => ([BODY, TRI] as const).map((pts) => {
     const g = new THREE.ExtrudeGeometry(toShape(pts), extrude);
     g.translate(0, 0, -0.45);
     return g;
   }) as [THREE.ExtrudeGeometry, THREE.ExtrudeGeometry], []);
 
+  useEffect(() => () => {
+    body.dispose();
+    tri.dispose();
+  }, [body, tri]);
+
   useFrame((state, delta) => {
     const g = group.current;
     if (!g) return;
     const k = 1 - Math.exp(-2.2 * Math.min(delta, 0.05));
-    const [x, y, z, rx, ry, s] = sample(scrollProgress()) as number[];
-    const mx = isMobile ? 0 : x!;
-    const sc = isMobile ? s! * 0.55 : s!;
+    const [x, y, z, rx, ry, s] = sample(scroll.current) as number[];
+    const mx = constrained ? 0 : x!;
+    const sc = constrained ? s! * 0.55 : s!;
     g.position.x += (mx - g.position.x) * k;
-    g.position.y += (y! + (isMobile ? 1.6 : 0) - g.position.y) * k;
+    g.position.y += (y! + (constrained ? 1.6 : 0) - g.position.y) * k;
     g.position.z += (z! - g.position.z) * k;
     g.rotation.x += (rx! + state.pointer.y * -0.18 - g.rotation.x) * k;
     g.rotation.y += (ry! + state.pointer.x * 0.3 - g.rotation.y) * k;
@@ -83,13 +82,13 @@ function Emblem() {
   );
 }
 
-function Rings() {
+function Rings({ scroll }: { scroll: { current: number } }) {
   const ref = useRef<THREE.Group>(null);
   useFrame((state, d) => {
     if (!ref.current) return;
     ref.current.rotation.z += Math.min(d, 0.05) * 0.08;
-    ref.current.rotation.x = 1.2 + scrollProgress() * 1.5;
-    ref.current.position.y = -scrollProgress() * 2;
+    ref.current.rotation.x = 1.2 + scroll.current * 1.5;
+    ref.current.position.y = -scroll.current * 2;
   });
   return (
     <group ref={ref} position={[0, 0, -6]}>
@@ -104,28 +103,45 @@ function Rings() {
 }
 
 export default function Emblem3D() {
+  const scroll = useRef(0);
   const m = typeof window !== "undefined" && window.innerWidth < 768;
+  const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const constrained = m || reducedMotion || (typeof navigator !== "undefined" && navigator.hardwareConcurrency <= 4);
+
+  useEffect(() => {
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scroll.current = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   return (
-    <Canvas dpr={m ? [1, 1.25] : [1, 1.75]} performance={{ min: 0.5 }} camera={{ position: [0, 0, 9], fov: 42 }} gl={{ antialias: !m, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping }}>
-      <color attach="background" args={["#05060a"]} />
+    <Canvas frameloop={reducedMotion ? "demand" : "always"} dpr={constrained ? [1, 1.25] : [1, 1.5]} performance={{ min: 0.6 }} camera={{ position: [0, 0, 9], fov: 42 }} gl={{ alpha: true, antialias: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping }}>
       <fog attach="fog" args={["#05060a", 9, 22]} />
       <ambientLight intensity={0.2} />
       <directionalLight position={[5, 5, 5]} intensity={2.5} />
       <directionalLight position={[-5, 2, 4]} intensity={1.2} color="#9fb6ff" />
       <pointLight position={[-4, -2, 3]} intensity={40} color="#ff3b2f" />
-      <Float speed={1} rotationIntensity={0.12} floatIntensity={0.45}>
-        <Emblem />
+      <Float speed={constrained ? 0.65 : 1} rotationIntensity={0.1} floatIntensity={constrained ? 0.25 : 0.45}>
+        <Emblem scroll={scroll} constrained={constrained} />
       </Float>
-      <Rings />
-      <Sparkles count={m ? 40 : 120} scale={[18, 12, 8]} size={2} speed={0.3} color="#c9d4ea" opacity={0.6} />
-      <Environment resolution={m ? 64 : 256}>
+      <Rings scroll={scroll} />
+      <Sparkles count={constrained ? 24 : 70} scale={[18, 12, 8]} size={2} speed={0.25} color="#c9d4ea" opacity={0.55} />
+      <Environment resolution={constrained ? 64 : 128}>
         <Lightformer form="rect" intensity={4} position={[0, 5, -2]} scale={[12, 1, 1]} />
         <Lightformer form="rect" intensity={2} color="#ff5a3d" position={[-6, 0, 2]} rotation-y={Math.PI / 2} scale={[10, 0.6, 1]} />
         <Lightformer form="rect" intensity={2.5} color="#9fb6ff" position={[6, 1, 1]} rotation-y={-Math.PI / 2} scale={[10, 0.6, 1]} />
         <Lightformer form="ring" intensity={2} position={[0, 0, -8]} scale={6} />
       </Environment>
-      <EffectComposer>
-        <Bloom resolutionScale={m ? 0.5 : 1} intensity={0.9} luminanceThreshold={0.6} luminanceSmoothing={0.2} mipmapBlur />
+      <EffectComposer multisampling={0}>
+        <Bloom resolutionScale={constrained ? 0.35 : 0.65} intensity={0.78} luminanceThreshold={0.65} luminanceSmoothing={0.2} mipmapBlur />
         <Vignette darkness={0.6} offset={0.3} />
       </EffectComposer>
     </Canvas>

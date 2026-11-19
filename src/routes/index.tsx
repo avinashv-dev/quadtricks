@@ -57,14 +57,14 @@ function ServicesSection() {
                 whileHover={reducedMotion ? undefined : { y: -4 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.42, delay: (index % 2) * 0.07, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative min-h-52 overflow-hidden rounded-2xl border border-border bg-background/82 p-5 shadow-[0_18px_48px_-36px_color-mix(in_oklch,var(--foreground)_70%,transparent)] transition-colors duration-300 hover:border-primary/55 focus-within:border-primary/70 sm:p-6"
+                className="group relative min-h-48 overflow-hidden rounded-2xl border border-border bg-background/82 p-4 shadow-[0_18px_48px_-36px_color-mix(in_oklch,var(--foreground)_70%,transparent)] transition-colors duration-300 hover:border-primary/55 focus-within:border-primary/70 sm:p-5"
               >
                 <span aria-hidden="true" className="absolute -right-8 -top-8 size-28 rounded-full bg-primary/[0.07] blur-2xl transition-opacity duration-500 group-hover:bg-primary/[0.16]" />
                 <div className="relative flex items-center justify-between gap-4">
                   <span className="font-mono text-xs tracking-[0.16em] text-primary">0{index + 1}</span>
                   <span className="grid size-10 place-items-center rounded-xl border border-border bg-muted/35 text-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/10 group-hover:text-primary"><Icon className="size-4" aria-hidden="true" /></span>
                 </div>
-                <div className="relative mt-7">
+                <div className="relative mt-6">
                   <h3 className="font-display max-w-[17ch] text-lg font-semibold leading-[1.1] tracking-[-0.025em] sm:text-xl">{service.title}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.text}</p>
                 </div>
@@ -113,7 +113,7 @@ function Index() {
           <div>
             <SectionHead n="02" label="Selected work" title="Built for what's next" />
           </div>
-          <div className="mt-10 grid min-w-0 gap-3.5 sm:grid-cols-2 md:grid-cols-3">
+          <div className="mt-10 grid max-w-6xl min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((p, i) => (
               <Reveal key={p.title} delay={(i % 3) * 70} className="h-full">
                 <ProjectCard p={p} i={i} />
@@ -153,34 +153,34 @@ function Index() {
       </section>
 
       {/* Why */}
-      <section id="why" className="scroll-mt-24 px-4 sm:px-5 py-20 md:py-28">
+      <section id="why" className="scroll-mt-24 px-4 py-16 sm:px-5 md:py-20">
         <div className="mx-auto max-w-7xl">
-          <Reveal className="mx-auto max-w-2xl text-center">
+          <Reveal className="max-w-2xl">
             <p className="label"><span className="text-primary">[04]</span> Why Quadtricks</p>
-            <h2 className="font-display mt-6 text-[2rem] font-semibold leading-[1.02] min-[400px]:text-4xl md:text-6xl">
+            <h2 className="font-display mt-4 text-3xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-4xl md:text-5xl">
               <span className="text-chrome">Senior minds.</span> <span className="text-primary">Startup speed.</span>
             </h2>
-            <p className="mt-6 text-muted-foreground">Four reasons to work with us. No invented numbers, no borrowed logos.</p>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">A focused team for ambitious digital products, with clear ownership from first brief to post-launch support.</p>
           </Reveal>
-          <div className="relative mt-12 md:mt-16">
+          <div className="relative mt-8">
             <span aria-hidden className="absolute -top-2.5 left-1/2 hidden -translate-x-1/2 font-mono text-xl text-primary/60 lg:block">+</span>
             <span aria-hidden className="absolute -bottom-2.5 left-1/2 hidden -translate-x-1/2 font-mono text-xl text-primary/60 lg:block">+</span>
             <span aria-hidden className="absolute -left-2.5 top-1/2 hidden -translate-y-1/2 font-mono text-xl text-primary/60 lg:block">+</span>
             <span aria-hidden className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 font-mono text-xl text-primary/60 lg:block">+</span>
-            <ol className="grid gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-2">
+            <ol className="overflow-hidden rounded-2xl border border-border bg-border [&>li]:min-h-0 [&>li]:rounded-none [&>li]:border-0 [&>li]:border-b [&>li]:border-border [&>li]:p-5 [&>li:last-child]:border-b-0 sm:[&>li>div]:grid sm:[&>li>div]:grid-cols-[auto_minmax(12rem,0.8fr)_minmax(0,1.45fr)] sm:[&>li>div]:items-center sm:[&>li>div]:gap-6 sm:[&>li>div>h3]:mt-0 sm:[&>li>div>p]:mt-0">
               {reasons.map((r, i) => {
                 const Icon = whyIcons[i % whyIcons.length] ?? Users;
                 return (
-                  <li key={r.title} className="group relative bg-background/80 p-7 backdrop-blur transition-colors duration-300 hover:bg-primary/5 md:p-10">
+                  <li key={r.title} className="group relative min-h-52 overflow-hidden rounded-2xl border border-border bg-background/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-primary/50 hover:bg-primary/[0.04]">
                     <Reveal delay={i * 80}>
-                      <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-500 group-hover:scale-x-100" />
+                      <span aria-hidden className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-primary transition-transform duration-500 group-hover:scale-x-100" />
                       <div className="flex items-start justify-between gap-4">
-                        <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-primary/25 bg-primary/10 text-primary transition-all duration-300 group-hover:rotate-6 group-hover:bg-primary group-hover:text-primary-foreground">
-                          <Icon className="size-5" aria-hidden />
+                        <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                          <Icon className="size-4" aria-hidden />
                         </span>
-                        <span className="font-display text-4xl font-extrabold text-foreground/10 transition-colors duration-300 group-hover:text-primary/40 md:text-5xl">0{i + 1}</span>
+                        <span className="font-mono text-xs tracking-[0.16em] text-muted-foreground transition-colors duration-300 group-hover:text-primary">0{i + 1}</span>
                       </div>
-                      <h3 className="font-display mt-6 text-lg font-semibold md:text-xl">{r.title}</h3>
+                      <h3 className="font-display mt-6 text-base font-semibold leading-tight tracking-[-0.02em]">{r.title}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.text}</p>
                     </Reveal>
                   </li>
@@ -188,7 +188,7 @@ function Index() {
               })}
             </ol>
           </div>
-          <Reveal delay={200} className="mt-10 text-center">
+          <Reveal delay={200} className="mt-6">
             <a href="#contact" className="btn-glow">Talk to the team →</a>
           </Reveal>
         </div>
@@ -285,23 +285,23 @@ function ProjectCard({ p, i }: { p: Project; i: number }) {
       viewport={{ once: true, amount: 0.18 }}
       transition={{ duration: 0.48, delay: Math.min(i, 5) * 0.055, ease: [0.22, 1, 0.36, 1] }}
       whileHover={reducedMotion ? undefined : { y: -4 }}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-background/85 shadow-[0_18px_44px_-30px_color-mix(in_oklch,var(--foreground)_60%,transparent)] transition-colors duration-300 focus-within:border-primary/80 ${i === 0 ? "border-primary/65" : "border-border hover:border-primary/55"}`}
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-transparent shadow-[0_18px_44px_-30px_color-mix(in_oklch,var(--foreground)_60%,transparent)] transition-colors duration-300 focus-within:border-primary/80 ${i === 0 ? "border-primary/65" : "border-border hover:border-primary/55"}`}
     >
-      <div className="relative aspect-[16/9] overflow-hidden border-b border-border bg-muted/25">
+      <div className="relative h-36 overflow-hidden border-b border-border bg-muted/25 sm:h-40">
         <ProjectPreview p={p} />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/35 via-transparent to-background/5" />
         {webProject && <div aria-hidden className="pointer-events-none absolute left-3 top-3 flex items-center gap-1 rounded-full border border-border/70 bg-background/80 px-2 py-1 backdrop-blur-sm">{[0, 1, 2].map((d) => <span key={d} className="size-1 rounded-full bg-muted-foreground/70" />)}</div>}
         {!webProject && <div aria-hidden className="pointer-events-none absolute left-3 top-3 rounded-full border border-border/70 bg-background/80 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground backdrop-blur-sm">Mobile</div>}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col p-5">
-        <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.11em] text-muted-foreground">
+      <div className="flex min-w-0 flex-1 flex-col bg-background/80 p-4 backdrop-blur-sm">
+        <div className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.11em] text-muted-foreground">
           <span className="text-primary">0{i + 1}</span>
           <span className="h-px w-5 bg-border" />
           <span className="truncate">{p.type}</span>
         </div>
-        <h3 className="font-display break-words text-lg font-semibold leading-tight tracking-[-0.02em]">{p.title}</h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{p.text}</p>
-        <Button asChild variant="link" className="mt-auto h-11 justify-between px-0 pt-4 text-xs font-semibold text-primary hover:text-foreground"><Link to="/projects/$slug" params={{ slug: projectSlug(p) }} aria-label={`View ${p.title} project`}>View case study<ArrowUpRight className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none" /><span className="absolute inset-0" aria-hidden /></Link></Button>
+        <h3 className="font-display break-words text-base font-semibold leading-tight tracking-[-0.02em] sm:text-lg">{p.title}</h3>
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{p.text}</p>
+        <Button asChild variant="link" className="mt-auto h-10 justify-between px-0 pt-3 text-xs font-semibold text-primary hover:text-foreground"><Link to="/projects/$slug" params={{ slug: projectSlug(p) }} aria-label={`View ${p.title} project`}>View case study<ArrowUpRight className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none" /><span className="absolute inset-0" aria-hidden /></Link></Button>
       </div>
     </motion.article>
   );

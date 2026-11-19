@@ -58,11 +58,9 @@ export function findProject(slug: string) {
 
 export const projects: Project[] = [
   { title: "Ridoz Style", type: "Web Application", text: "A website for an innerwear brand that sells to both retail customers and wholesale buyers.", images: [ridoz1.url, ridoz4.url, ridoz5.url, ridoz6.url, ridoz7.url, ridoz2.url, ridoz3.url], coverImage: "/ridoz-cover.png", device: "web", siteUrl: "https://ridoz.vercel.app/" },
-  { title: "EasyBasket", type: "Mobile App", text: "A bilingual shopping-list app to browse groceries by category, build your list and share it in a tap.", images: [ebListNew.url, ebList.url, ebVeg.url], device: "mobile", icon: ebIcon.url, siteUrl: "https://play.google.com/store/apps/details?id=com.kerala.shoppinglist" },
-  { title: "Noor Al Rida", type: "Web Application", text: "A website for a custom joinery and furniture manufacturer in Ras Al Khaimah, UAE.", images: [noor3.url, noor4.url, noor5.url, noor1.url, noor2.url], device: "web", icon: noorLogo.url, siteUrl: "https://www.nooralrida.ae/", industry: "Custom Joinery & Furniture", platform: "Website", location: "Ras Al Khaimah, UAE" },
-  { title: "PrintQuote", type: "Web Application", text: "A quotation website for printing shops in the GCC, built to make preparing and sharing quotes quick and easy.", images: [], device: "web" },
-  { title: "MediPlant", type: "Mobile App", text: "A mobile app that helps students in the UAE discover medicinal plants and learn about their benefits.", images: [], device: "mobile" },
-  { title: "RestaurantMenu", type: "Mobile App", text: "A mobile app that lets diners scan a QR code and browse the restaurant's menu.", images: [], device: "mobile" },
+  { title: "EasyBasket", type: "Mobile App", text: "A bilingual shopping-list app to browse groceries by category, build your list and share it in a tap.", images: [ebListNew.url, ebList.url, ebVeg.url], coverImage: "/EasyBasket.png", device: "mobile", icon: ebIcon.url, siteUrl: "https://play.google.com/store/apps/details?id=com.kerala.shoppinglist" },
+  { title: "Noor Al Rida", type: "Web Application", text: "A website for a custom joinery and furniture manufacturer in Ras Al Khaimah, UAE.", images: [noor3.url, noor4.url, noor5.url, noor1.url, noor2.url], coverImage: "/noor.png", device: "web", icon: noorLogo.url, siteUrl: "https://www.nooralrida.ae/", industry: "Custom Joinery & Furniture", platform: "Website", location: "Ras Al Khaimah, UAE" },
+  { title: "RestaurantMenu", type: "Mobile App", text: "A mobile app that lets diners scan a QR code and browse the restaurant's menu.", images: [], coverImage: "/RestaurantMenu.png", device: "mobile" },
 ];
 
 export const contact = {
