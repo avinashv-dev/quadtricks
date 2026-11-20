@@ -109,16 +109,22 @@ export default function Emblem3D() {
   const constrained = m || reducedMotion || (typeof navigator !== "undefined" && navigator.hardwareConcurrency <= 4);
 
   useEffect(() => {
+    let frame = 0;
     const update = () => {
+      frame = 0;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       scroll.current = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     };
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
     };
   }, []);
 

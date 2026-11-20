@@ -26,6 +26,8 @@
   --color-case-background: var(--case-background);
   --color-case-grid: var(--case-grid);
   --color-logo-chip: var(--logo-chip);
+  --color-footer-background: var(--footer-background);
+  --color-footer-foreground: var(--footer-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -96,6 +98,8 @@
   --chart-1: oklch(0.65 0.23 30); --chart-2: oklch(0.78 0.08 260); --chart-3: oklch(0.5 0.05 260); --chart-4: oklch(0.8 0.17 80); --chart-5: oklch(0.65 0.2 20);
   --sidebar: var(--card); --sidebar-foreground: var(--foreground); --sidebar-primary: var(--primary); --sidebar-primary-foreground: var(--primary-foreground); --sidebar-accent: var(--accent); --sidebar-accent-foreground: var(--foreground); --sidebar-border: var(--border); --sidebar-ring: var(--ring);
   --gradient-chrome: linear-gradient(180deg, var(--foreground) 30%, var(--accent));
+  --footer-background: oklch(1 0 0);
+  --footer-foreground: oklch(0.23 0.014 260);
 }
 
 /*
@@ -135,6 +139,10 @@
   --band-ink-foreground: oklch(0.97 0.006 260);
   --band-sky: oklch(0.96 0.025 240);
   --band-peach: oklch(0.965 0.025 55);
+  --tech-band-violet: oklch(0.39 0.1 292);
+  --tech-band-teal: oklch(0.52 0.09 210);
+  --footer-background: oklch(1 0 0);
+  --footer-foreground: oklch(0.23 0.014 260);
   --font-display: "Geist", sans-serif;
   letter-spacing: 0;
 }
@@ -146,6 +154,7 @@
   --color-band-peach: var(--band-peach);
 }
 @utility band-glow { background-image: radial-gradient(circle at 85% 10%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 45%), radial-gradient(circle at 0% 100%, color-mix(in oklab, var(--band-sky) 18%, transparent), transparent 40%); }
+@utility tech-band { background-color: var(--band-ink); background-image: linear-gradient(to bottom, color-mix(in oklab, var(--background) 88%, var(--tech-band-teal) 12%) 0, color-mix(in oklab, var(--band-ink) 54%, var(--tech-band-teal) 46%) 2px, transparent 18px), linear-gradient(to top, color-mix(in oklab, var(--background) 88%, var(--tech-band-violet) 12%) 0, color-mix(in oklab, var(--band-ink) 54%, var(--tech-band-violet) 46%) 2px, transparent 18px), radial-gradient(circle at 84% 30%, color-mix(in oklab, var(--tech-band-teal) 42%, transparent), transparent 34%), radial-gradient(circle at 49% 95%, color-mix(in oklab, var(--tech-band-violet) 34%, transparent), transparent 43%), linear-gradient(110deg, color-mix(in oklab, var(--band-ink) 94%, var(--tech-band-teal) 6%), color-mix(in oklab, var(--band-ink) 82%, var(--tech-band-violet) 18%) 54%, color-mix(in oklab, var(--band-ink) 86%, var(--tech-band-teal) 14%)); }
 @utility band-dots { background-image: radial-gradient(color-mix(in oklab, var(--foreground) 10%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
 
 @layer base {
