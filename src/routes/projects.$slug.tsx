@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, Check, ChevronLeft, ChevronRight, Code2, ImageIcon, Layers, Pause, Play, Volume2, VolumeX, Wind, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -150,43 +150,7 @@ function TechnologyMark({ technology }: { technology: string }) {
   return <span aria-hidden className={`${markClass} text-rose-300 drop-shadow-[0_7px_13px_rgba(251,113,133,0.34)]`}><Layers className="size-8" /></span>;
 }
 
-type WalkthroughMusic = {
-  context: AudioContext;
-  master: GainNode;
-  timer: ReturnType<typeof window.setInterval> | null;
-  step: number;
-};
-
-const WALKTHROUGH_NOTES = [
-  261.63, 329.63, 392, 523.25, 440, 392, 329.63, 293.66,
-  349.23, 440, 523.25, 587.33, 523.25, 440, 392, 329.63,
-];
-
-function playWalkthroughNote(music: WalkthroughMusic) {
-  const now = music.context.currentTime;
-  const frequency = WALKTHROUGH_NOTES[music.step % WALKTHROUGH_NOTES.length];
-  music.step += 1;
-
-  const filter = music.context.createBiquadFilter();
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(1850, now);
-  filter.Q.setValueAtTime(0.45, now);
-
-  const gain = music.context.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.2, now + 0.012);
-  gain.gain.exponentialRampToValueAtTime(0.055, now + 0.16);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.12);
-
-  const oscillator = music.context.createOscillator();
-  oscillator.type = "triangle";
-  oscillator.frequency.setValueAtTime(frequency, now);
-  oscillator.detune.setValueAtTime(music.step % 3 === 0 ? 2 : -1, now);
-
-  oscillator.connect(filter).connect(gain).connect(music.master);
-  oscillator.start(now);
-  oscillator.stop(now + 1.18);
-}
+const WALKTHROUGH_MUSIC_URL = "https://www.youtube-nocookie.com/embed/8ITcaPPP3xo?autoplay=1&loop=1&playlist=8ITcaPPP3xo&controls=0&rel=0&playsinline=1&enablejsapi=1";
 
 function VideoShowcase({ project }: { project: Project & { showcaseVideo: string } }) {
   const reduceMotion = useReducedMotion();
@@ -195,35 +159,7 @@ function VideoShowcase({ project }: { project: Project & { showcaseVideo: string
   const [selectedScreen, setSelectedScreen] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const musicRef = useRef<WalkthroughMusic | null>(null);
-  const musicActivatedRef = useRef(false);
   const stageInView = useInView(stageRef, { amount: 0.25 });
-
-  const stopMusic = useCallback(() => {
-    const music = musicRef.current;
-    if (!music) return;
-    if (music.timer) window.clearInterval(music.timer);
-    music.timer = null;
-    void music.context.suspend();
-  }, []);
-
-  const startMusic = useCallback(() => {
-    let music = musicRef.current;
-    if (!music) {
-      const AudioContextConstructor = window.AudioContext ?? window.webkitAudioContext;
-      if (!AudioContextConstructor) return;
-      const context = new AudioContextConstructor();
-      const master = context.createGain();
-      master.gain.value = 0.16;
-      master.connect(context.destination);
-      music = { context, master, timer: null, step: 0 };
-      musicRef.current = music;
-    }
-    void music.context.resume();
-    if (music.timer) return;
-    playWalkthroughNote(music);
-    music.timer = window.setInterval(() => playWalkthroughNote(music), 500);
-  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -232,38 +168,16 @@ function VideoShowcase({ project }: { project: Project & { showcaseVideo: string
     else video.play().catch(() => setPaused(true));
   }, [paused, reduceMotion, stageInView]);
 
-  useEffect(() => {
-    if (musicActivatedRef.current && musicEnabled && !paused && !reduceMotion && stageInView) startMusic();
-    else stopMusic();
-  }, [musicEnabled, paused, reduceMotion, stageInView, startMusic, stopMusic]);
-
-  useEffect(() => () => {
-    const music = musicRef.current;
-    stopMusic();
-    if (music) {
-      music.master.disconnect();
-      void music.context.close();
-    }
-  }, [stopMusic]);
-
   const togglePlayback = () => {
     const nextPaused = !paused;
     setPaused(nextPaused);
     if (!nextPaused) {
-      musicActivatedRef.current = true;
       setMusicEnabled(true);
-      startMusic();
     }
   };
 
-  const toggleMusic = () => {
-    if (musicEnabled) stopMusic();
-    else {
-      musicActivatedRef.current = true;
-      if (!paused && !reduceMotion && stageInView) startMusic();
-    }
-    setMusicEnabled((enabled) => !enabled);
-  };
+  const toggleMusic = () => setMusicEnabled((enabled) => !enabled);
+  const shouldPlayMusic = musicEnabled && !paused && !reduceMotion && stageInView;
 
   return <section aria-labelledby="highlights-title">
     <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
@@ -276,6 +190,7 @@ function VideoShowcase({ project }: { project: Project & { showcaseVideo: string
         <AnimatePresence initial={false}>{selectedScreen !== null && <motion.img key={project.images[selectedScreen]} src={project.images[selectedScreen]} alt={`${project.title} interface screen ${selectedScreen + 1}`} className="absolute inset-0 h-full w-full object-contain" initial={reduceMotion ? false : { opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }} transition={{ duration: reduceMotion ? 0 : 0.2 }} />}</AnimatePresence>
         <div className={`absolute overflow-hidden bg-black shadow-2xl transition-[width,height,inset,border-radius] duration-300 ${selectedScreen === null ? "inset-0" : "inset-auto bottom-3 right-3 w-[34%] aspect-video rounded-lg border border-white/20 sm:h-[34%] sm:w-[36%] sm:aspect-auto"}`}>
           <video ref={videoRef} src={stageInView ? project.showcaseVideo : undefined} poster={project.images[0] ?? project.coverImage} autoPlay={!reduceMotion} muted loop playsInline preload="metadata" aria-label={`${project.title} product walkthrough`} className="h-full w-full object-contain" />
+          {shouldPlayMusic && <iframe src={WALKTHROUGH_MUSIC_URL} title="Ridoz walkthrough background music" allow="autoplay" onLoad={(event) => event.currentTarget.contentWindow?.postMessage('{"event":"command","func":"setVolume","args":[18]}', "https://www.youtube-nocookie.com")} className="pointer-events-none absolute size-px opacity-0" />}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/30 to-transparent" />
           <div className={`absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.11em] text-white/90 backdrop-blur-md ${selectedScreen === null ? "sm:left-3 sm:top-3 sm:px-3 sm:py-1.5 sm:text-[10px]" : ""}`}><span className={`size-1.5 rounded-full ${paused || reduceMotion ? "bg-white/50" : "bg-primary"}`} />{selectedScreen === null ? "Ridoz Style" : "Walkthrough"}</div>
           {!reduceMotion && <div className={`absolute flex items-center gap-1.5 ${selectedScreen === null ? "bottom-2 left-2 sm:bottom-3 sm:left-3" : "bottom-2 right-2"}`}>
