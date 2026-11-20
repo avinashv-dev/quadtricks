@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, Check, ChevronLeft, ChevronRight, Code2, ImageIcon, Layers, Pause, Play, Wind, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, Check, ChevronLeft, ChevronRight, Code2, ImageIcon, Layers, Pause, Play, Volume2, VolumeX, Wind, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { findProject, projects, projectSlug, type Project } from "@/lib/content";
 
@@ -150,13 +150,80 @@ function TechnologyMark({ technology }: { technology: string }) {
   return <span aria-hidden className={`${markClass} text-rose-300 drop-shadow-[0_7px_13px_rgba(251,113,133,0.34)]`}><Layers className="size-8" /></span>;
 }
 
+type WalkthroughMusic = {
+  context: AudioContext;
+  master: GainNode;
+  timer: ReturnType<typeof window.setInterval> | null;
+  step: number;
+};
+
+const WALKTHROUGH_NOTES = [
+  261.63, 329.63, 392, 523.25, 440, 392, 329.63, 293.66,
+  349.23, 440, 523.25, 587.33, 523.25, 440, 392, 329.63,
+];
+
+function playWalkthroughNote(music: WalkthroughMusic) {
+  const now = music.context.currentTime;
+  const frequency = WALKTHROUGH_NOTES[music.step % WALKTHROUGH_NOTES.length];
+  music.step += 1;
+
+  const filter = music.context.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(1850, now);
+  filter.Q.setValueAtTime(0.45, now);
+
+  const gain = music.context.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.2, now + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.055, now + 0.16);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.12);
+
+  const oscillator = music.context.createOscillator();
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(frequency, now);
+  oscillator.detune.setValueAtTime(music.step % 3 === 0 ? 2 : -1, now);
+
+  oscillator.connect(filter).connect(gain).connect(music.master);
+  oscillator.start(now);
+  oscillator.stop(now + 1.18);
+}
+
 function VideoShowcase({ project }: { project: Project & { showcaseVideo: string } }) {
   const reduceMotion = useReducedMotion();
   const [paused, setPaused] = useState(false);
+  const [musicEnabled, setMusicEnabled] = useState(false);
   const [selectedScreen, setSelectedScreen] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const musicRef = useRef<WalkthroughMusic | null>(null);
+  const musicActivatedRef = useRef(false);
   const stageInView = useInView(stageRef, { amount: 0.25 });
+
+  const stopMusic = useCallback(() => {
+    const music = musicRef.current;
+    if (!music) return;
+    if (music.timer) window.clearInterval(music.timer);
+    music.timer = null;
+    void music.context.suspend();
+  }, []);
+
+  const startMusic = useCallback(() => {
+    let music = musicRef.current;
+    if (!music) {
+      const AudioContextConstructor = window.AudioContext ?? window.webkitAudioContext;
+      if (!AudioContextConstructor) return;
+      const context = new AudioContextConstructor();
+      const master = context.createGain();
+      master.gain.value = 0.16;
+      master.connect(context.destination);
+      music = { context, master, timer: null, step: 0 };
+      musicRef.current = music;
+    }
+    void music.context.resume();
+    if (music.timer) return;
+    playWalkthroughNote(music);
+    music.timer = window.setInterval(() => playWalkthroughNote(music), 500);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -164,6 +231,39 @@ function VideoShowcase({ project }: { project: Project & { showcaseVideo: string
     if (reduceMotion || paused || !stageInView) video.pause();
     else video.play().catch(() => setPaused(true));
   }, [paused, reduceMotion, stageInView]);
+
+  useEffect(() => {
+    if (musicActivatedRef.current && musicEnabled && !paused && !reduceMotion && stageInView) startMusic();
+    else stopMusic();
+  }, [musicEnabled, paused, reduceMotion, stageInView, startMusic, stopMusic]);
+
+  useEffect(() => () => {
+    const music = musicRef.current;
+    stopMusic();
+    if (music) {
+      music.master.disconnect();
+      void music.context.close();
+    }
+  }, [stopMusic]);
+
+  const togglePlayback = () => {
+    const nextPaused = !paused;
+    setPaused(nextPaused);
+    if (!nextPaused) {
+      musicActivatedRef.current = true;
+      setMusicEnabled(true);
+      startMusic();
+    }
+  };
+
+  const toggleMusic = () => {
+    if (musicEnabled) stopMusic();
+    else {
+      musicActivatedRef.current = true;
+      if (!paused && !reduceMotion && stageInView) startMusic();
+    }
+    setMusicEnabled((enabled) => !enabled);
+  };
 
   return <section aria-labelledby="highlights-title">
     <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
@@ -178,7 +278,10 @@ function VideoShowcase({ project }: { project: Project & { showcaseVideo: string
           <video ref={videoRef} src={stageInView ? project.showcaseVideo : undefined} poster={project.images[0] ?? project.coverImage} autoPlay={!reduceMotion} muted loop playsInline preload="metadata" aria-label={`${project.title} product walkthrough`} className="h-full w-full object-contain" />
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/30 to-transparent" />
           <div className={`absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.11em] text-white/90 backdrop-blur-md ${selectedScreen === null ? "sm:left-3 sm:top-3 sm:px-3 sm:py-1.5 sm:text-[10px]" : ""}`}><span className={`size-1.5 rounded-full ${paused || reduceMotion ? "bg-white/50" : "bg-primary"}`} />{selectedScreen === null ? "Ridoz Style" : "Walkthrough"}</div>
-          {!reduceMotion && <motion.button type="button" onClick={() => setPaused((current) => !current)} aria-label={paused ? "Play product walkthrough" : "Pause product walkthrough"} className={`absolute inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/65 font-semibold text-white shadow-lg backdrop-blur-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black ${selectedScreen === null ? "bottom-2 left-2 min-h-8 gap-1.5 px-2.5 text-[11px] sm:bottom-3 sm:left-3 sm:min-h-11 sm:gap-2 sm:px-4 sm:text-sm" : "bottom-2 right-2 size-8 justify-center"}`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }} transition={{ type: "spring", stiffness: 450, damping: 30 }}>{paused ? <Play aria-hidden className="size-3 fill-current sm:size-3.5" /> : <Pause aria-hidden className="size-3 fill-current sm:size-3.5" />}{selectedScreen === null && (paused ? "Play walkthrough" : "Pause walkthrough")}</motion.button>}
+          {!reduceMotion && <div className={`absolute flex items-center gap-1.5 ${selectedScreen === null ? "bottom-2 left-2 sm:bottom-3 sm:left-3" : "bottom-2 right-2"}`}>
+            <motion.button type="button" onClick={togglePlayback} aria-label={paused ? "Play product walkthrough" : "Pause product walkthrough"} className={`inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/65 font-semibold text-white shadow-lg backdrop-blur-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black ${selectedScreen === null ? "min-h-8 gap-1.5 px-2.5 text-[11px] sm:min-h-11 sm:gap-2 sm:px-4 sm:text-sm" : "size-8 justify-center"}`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }} transition={{ type: "spring", stiffness: 450, damping: 30 }}>{paused ? <Play aria-hidden className="size-3 fill-current sm:size-3.5" /> : <Pause aria-hidden className="size-3 fill-current sm:size-3.5" />}{selectedScreen === null && (paused ? "Play walkthrough" : "Pause walkthrough")}</motion.button>
+            <motion.button type="button" onClick={toggleMusic} aria-label={musicEnabled ? "Turn off walkthrough music" : "Turn on walkthrough music"} aria-pressed={musicEnabled} className="inline-flex size-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-lg backdrop-blur-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }} transition={{ type: "spring", stiffness: 450, damping: 30 }}>{musicEnabled ? <Volume2 aria-hidden className="size-4" /> : <VolumeX aria-hidden className="size-4" />}</motion.button>
+          </div>}
         </div>
         {selectedScreen !== null && <motion.button type="button" onClick={() => setSelectedScreen(null)} initial={reduceMotion ? false : { opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="absolute left-3 top-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-black/10 bg-background/90 px-3 text-xs font-semibold text-foreground shadow-sm backdrop-blur-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"><Play aria-hidden className="size-3.5 fill-current text-primary" />Watch walkthrough</motion.button>}
         {reduceMotion && selectedScreen === null && <div className="absolute inset-0 grid place-items-center bg-black/35 p-5 text-center text-sm font-medium text-white backdrop-blur-[1px]">Motion preview paused for your accessibility preference</div>}
