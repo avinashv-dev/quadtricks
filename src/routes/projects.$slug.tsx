@@ -70,13 +70,13 @@ function ProjectPage() {
 
       <section aria-labelledby="overview-title" className="py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="min-w-0"><SectionLabel n="01" text="Overview" /><h2 id="overview-title" className="font-display text-3xl font-semibold sm:text-4xl">Project Overview</h2><p className="mt-5 max-w-5xl whitespace-pre-line text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg sm:leading-8">{project.overview ?? project.text}</p></div>
+          <div className="min-w-0"><h2 id="overview-title" className="font-display text-3xl font-semibold sm:text-4xl">Project Overview</h2><p className="mt-5 max-w-5xl whitespace-pre-line text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg sm:leading-8">{project.overview ?? project.text}</p></div>
         </div>
       </section>
 
       <section aria-labelledby="goals-title" className="border-y border-border bg-muted/25 py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionLabel n="02" text="Goals" /><h2 id="goals-title" className="font-display text-3xl font-semibold sm:text-4xl">Client Goals</h2>
+          <h2 id="goals-title" className="font-display text-3xl font-semibold sm:text-4xl">Client Goals</h2>
           {project.clientSuggestions && <p className="mt-5 max-w-4xl leading-relaxed text-muted-foreground">{project.clientSuggestions}</p>}
           <ul className="mt-8 grid gap-3 md:grid-cols-2">
             {(project.clientGoals?.length ? project.clientGoals : ["Client goals and requirements are awaiting confirmation."]).map((goal, i) => <GoalCard key={goal} goal={goal} index={i} />)}
@@ -85,7 +85,7 @@ function ProjectPage() {
       </section>
 
       <section className="py-12 sm:py-16">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6"><SectionLabel n="03" text="Process" />
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="mt-2 grid gap-4 md:grid-cols-2">
             <DetailSection title="Our Approach & Strategy" text={project.approach} points={project.strategyPoints} pending="Project-specific strategy and development decisions are awaiting confirmation." />
             <DetailSection title="Design & User Experience" text={project.designUx} points={project.designPoints} pending="Verified design decisions and user-experience details have not been provided yet." />
@@ -93,11 +93,11 @@ function ProjectPage() {
         </div>
       </section>
 
-      <section className="border-y border-border bg-muted/20 py-12 sm:py-16"><div className="mx-auto max-w-6xl px-4 sm:px-6"><SectionLabel n="04" text="Showcase" /><ProjectGallery key={slug} project={project} /></div></section>
+      <section className="border-y border-border bg-muted/20 py-12 sm:py-16"><div className="mx-auto max-w-6xl px-4 sm:px-6"><ProjectGallery key={slug} project={project} /></div></section>
 
       <section aria-labelledby="technology-title" className="tech-band overflow-hidden py-7 text-band-ink-foreground sm:py-9">
         <div className="mx-auto grid max-w-6xl gap-5 px-4 sm:px-6 md:grid-cols-[0.9fr_1.4fr] md:items-center md:gap-8">
-          <div><p className="mb-2 font-mono text-[11px] uppercase text-primary-glow">05 — Stack</p><h2 id="technology-title" className="font-display text-2xl font-semibold sm:text-3xl">Development & Technology</h2><p className="mt-2 max-w-md text-xs leading-relaxed text-band-ink-foreground/70 sm:max-w-none sm:whitespace-nowrap">{project.technologies?.length ? "A modern frontend stack for responsive, interactive web applications." : "The verified technology stack has not been provided yet."}</p></div>
+          <div><p className="mb-2 font-mono text-[11px] uppercase text-primary-glow">Stack</p><h2 id="technology-title" className="font-display text-2xl font-semibold sm:text-3xl">Development & Technology</h2><p className="mt-2 max-w-md text-xs leading-relaxed text-band-ink-foreground/70 sm:max-w-none sm:whitespace-nowrap">{project.technologies?.length ? "A modern frontend stack for responsive, interactive web applications." : "The verified technology stack has not been provided yet."}</p></div>
           {project.technologies?.length ? <TechnologyList technologies={project.technologies} /> : <div className="flex items-center gap-3 self-center rounded-xl border border-dashed border-band-ink-foreground/25 p-5 text-sm text-band-ink-foreground/70"><Code2 aria-hidden className="size-6 text-primary-glow" />Technology details pending</div>}
         </div>
       </section>
@@ -108,10 +108,6 @@ function ProjectPage() {
       </div></section>}
     </div>
   );
-}
-
-function SectionLabel({ n, text }: { n: string; text: string }) {
-  return <p className="mb-3 font-mono text-xs uppercase text-primary">{n} — {text}</p>;
 }
 
 function GoalCard({ goal, index }: { goal: string; index: number }) {
@@ -264,7 +260,7 @@ function ScreenshotGallery({ project }: { project: Project }) {
   const togglePlayback = () => setPaused((current) => !current);
   return (
     <section aria-labelledby="highlights-title">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4"><div><h2 id="highlights-title" className="font-display text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Design Highlights</h2><p className="mt-1 text-sm text-muted-foreground">{project.showcaseVideo ? "A recorded product walkthrough, followed by selected interface screens." : "A compact view of the project interface."}</p></div>{item && galleryItems.length > 1 && <div className="flex items-center gap-2"><span className="mr-1 font-mono text-xs text-muted-foreground">{String(selected + 1).padStart(2, "0")} / {String(galleryItems.length).padStart(2, "0")}</span><Button size="icon" variant="outline" aria-label="Previous showcase item" onClick={() => { setPaused(false); setSelected((selected + galleryItems.length - 1) % galleryItems.length); }}><ChevronLeft /></Button><Button size="icon" variant="outline" aria-label="Next showcase item" onClick={() => { setPaused(false); setSelected((selected + 1) % galleryItems.length); }}><ChevronRight /></Button></div>}</div>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4"><div><h2 id="highlights-title" className="font-display text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Design Highlights</h2><p className="mt-1 text-sm text-muted-foreground">{project.showcaseVideo ? "A recorded product walkthrough, followed by selected interface screens." : "A compact view of the project interface."}</p></div>{item && galleryItems.length > 1 && <div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label="Previous showcase item" onClick={() => { setPaused(false); setSelected((selected + galleryItems.length - 1) % galleryItems.length); }}><ChevronLeft /></Button><Button size="icon" variant="outline" aria-label="Next showcase item" onClick={() => { setPaused(false); setSelected((selected + 1) % galleryItems.length); }}><ChevronRight /></Button></div>}</div>
       {item ? <div className={`grid items-start gap-5 lg:gap-6 ${project.device === "mobile" && !isVideo ? "lg:mx-auto lg:w-fit lg:max-w-full lg:grid-cols-[minmax(0,max-content)_minmax(20rem,32rem)]" : "lg:grid-cols-[minmax(18rem,52rem)_minmax(14rem,32rem)] lg:justify-center"}`}>
         <div ref={previewRef} className={`relative min-w-0 max-w-full justify-self-center rounded-[1.4rem] bg-gradient-to-br from-white/90 via-border/60 to-primary/40 p-px shadow-[0_20px_50px_-24px_rgba(15,23,42,0.45),0_8px_20px_-14px_rgba(15,23,42,0.28),inset_0_1px_0_rgba(255,255,255,0.9)] before:pointer-events-none before:absolute before:inset-[1px] before:z-10 before:rounded-[calc(1.4rem-1px)] before:border before:border-white/35 before:content-[''] ${isVideo || project.device === "web" ? "w-full" : "w-fit"}`}>
           <div className={`relative overflow-hidden rounded-[calc(1.4rem-1px)] border border-white/40 bg-background/65 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl ${isVideo ? "aspect-[16/10] w-full" : "w-fit max-w-full"}`}>

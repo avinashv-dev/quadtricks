@@ -21,6 +21,10 @@ npm i
 npm run dev
 ```
 
+## Contact enquiries
+
+The enquiry form sends mail through Resend on the server. Configure the `RESEND_API_KEY` secret and `ENQUIRY_FROM_EMAIL` (a sender address on a domain verified in Resend) in the deployment environment. For local development, provide the same environment variables to the development server. Enquiries are delivered to `info.quadtricks@gmail.com`, with the visitor's address set as the reply-to address. The form reports an error if the service is not configured or the provider rejects the request.
+
 ## Built with
 
 - TanStack Start

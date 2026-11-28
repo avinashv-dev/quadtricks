@@ -191,4 +191,4 @@ img { max-width: 100%; }
 @keyframes fade-up { from { opacity:0; transform: translateY(30px); filter: blur(10px);} to { opacity:1; transform:none; filter:none; } }
 .fade-up { animation: fade-up 1.1s cubic-bezier(.2,.7,.2,1) both; }
 @keyframes scan { from { transform: translateY(-100%);} to { transform: translateY(100%);} }
-@media (prefers-reduced-motion: reduce) { .reveal, .fade-up { opacity:1; transform:none; filter:none; animation:none; transition:none; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal, .fade-up { opacity:1; transform:none; filter:none; animation:none; transition:none; } }

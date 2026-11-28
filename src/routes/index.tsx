@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Clapperboard, Cloud, Code2, Globe2, LayoutPanelTop, Palette, PenTool, ShieldCheck, Smartphone, Users } from "lucide-react";
+import { ArrowUpRight, Check, Clapperboard, Cloud, Code2, Globe2, LayoutPanelTop, Palette, PenTool, ShieldCheck, Smartphone, Users } from "lucide-react";
+import { AnimatedDropdownMenu } from "@/components/ui/dropdown-menu";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, type FormEvent } from "react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { LogoLoader } from "@/components/logo-loader";
 import { Reveal, Scene3D } from "@/components/site";
 import { contact, process, projects, projectSlug, reasons, services, type Project } from "@/lib/content";
 
@@ -24,10 +26,10 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function SectionHead({ n, label, title, right = false }: { n: string; label: string; title: string; right?: boolean }) {
+function SectionHead({ label, title, right = false }: { label: string; title: string; right?: boolean }) {
   return (
     <Reveal className={right ? "md:ml-auto md:max-w-xl md:text-right" : "max-w-xl"}>
-      <p className="label"><span className="text-primary">[{n}]</span> {label}</p>
+      <p className="label">{label}</p>
       <h2 className="font-display text-chrome mt-4 text-[2rem] font-semibold leading-[1.05] min-[400px]:text-4xl md:text-6xl">{title}</h2>
     </Reveal>
   );
@@ -40,7 +42,7 @@ function ServicesSection() {
     <section id="services" className="scroll-mt-24 px-4 py-20 sm:px-5 md:py-28">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:gap-14">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <p className="label"><span className="text-primary">[01]</span> Capabilities</p>
+          <p className="label">Capabilities</p>
           <h2 className="font-display text-chrome mt-5 max-w-md text-4xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl md:text-6xl">Built to take ideas <span className="text-primary">further.</span></h2>
           <p className="mt-6 max-w-sm text-base leading-relaxed text-muted-foreground">From first interface to reliable launch, we bring design, engineering and the systems behind it into one focused team.</p>
           <a href="#contact" className="btn-glass mt-8 inline-flex min-h-11">Start a conversation <ArrowUpRight className="size-4" aria-hidden="true" /></a>
@@ -53,15 +55,13 @@ function ServicesSection() {
               <motion.article
                 key={service.title}
                 initial={reducedMotion ? false : { opacity: 0, y: 22 }}
-                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                whileHover={reducedMotion ? undefined : { y: -4 }}
+                {...(!reducedMotion && { whileInView: { opacity: 1, y: 0 } })}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.42, delay: (index % 2) * 0.07, ease: [0.22, 1, 0.36, 1] }}
                 className="group relative min-h-48 overflow-hidden rounded-2xl border border-border bg-background/82 p-4 shadow-[0_18px_48px_-36px_color-mix(in_oklch,var(--foreground)_70%,transparent)] transition-colors duration-300 hover:border-primary/55 focus-within:border-primary/70 sm:p-5"
               >
                 <span aria-hidden="true" className="absolute -right-8 -top-8 size-28 rounded-full bg-primary/[0.07] blur-2xl transition-opacity duration-500 group-hover:bg-primary/[0.16]" />
-                <div className="relative flex items-center justify-between gap-4">
-                  <span className="font-mono text-xs tracking-[0.16em] text-primary">0{index + 1}</span>
+                <div className="relative flex justify-end">
                   <span className="grid size-10 place-items-center rounded-xl border border-border bg-muted/35 text-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/10 group-hover:text-primary"><Icon className="size-4" aria-hidden="true" /></span>
                 </div>
                 <div className="relative mt-6">
@@ -111,7 +111,7 @@ function Index() {
       <section id="work" className="scroll-mt-24 px-4 sm:px-5 py-20 md:py-28">
         <div className="mx-auto max-w-7xl">
           <div>
-            <SectionHead n="02" label="Selected work" title="Built for what's next" />
+            <SectionHead label="Selected work" title="Built for what's next" />
           </div>
           <div className="mt-10 grid max-w-6xl min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((p, i) => (
@@ -128,7 +128,7 @@ function Index() {
         <div className="mx-auto max-w-7xl">
           <div className="text-center">
             <Reveal>
-              <p className="label"><span className="text-primary">[03]</span> Process</p>
+              <p className="label">Process</p>
               <h2 className="font-display text-chrome mt-4 text-[2rem] font-semibold min-[400px]:text-4xl md:text-6xl">From signal to launch</h2>
             </Reveal>
           </div>
@@ -138,9 +138,7 @@ function Index() {
             {process.map((p, i) => (
               <Reveal key={p.step} delay={i * 100}>
                 <div className="glass relative h-full overflow-hidden rounded-2xl p-6">
-                  <span className="font-display absolute -right-2 -top-4 text-8xl font-extrabold text-foreground/5">{i + 1}</span>
-                  <p className="label text-primary">Phase 0{i + 1}</p>
-                  <h3 className="font-display mt-6 text-2xl font-semibold">{p.step}</h3>
+                  <h3 className="font-display text-2xl font-semibold">{p.step}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{p.text}</p>
                   <ul className="mt-5 space-y-1.5 text-sm">
                     {p.items.map((it) => <li key={it} className="flex gap-2"><span className="text-primary">›</span>{it}</li>)}
@@ -156,7 +154,7 @@ function Index() {
       <section id="why" className="scroll-mt-24 px-4 py-16 sm:px-5 md:py-20">
         <div className="mx-auto max-w-7xl">
           <Reveal className="max-w-2xl">
-            <p className="label"><span className="text-primary">[04]</span> Why Quadtricks</p>
+            <p className="label">Why Quadtricks</p>
             <h2 className="font-display mt-4 text-3xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-4xl md:text-5xl">
               <span className="text-chrome">Senior minds.</span> <span className="text-primary">Startup speed.</span>
             </h2>
@@ -174,11 +172,10 @@ function Index() {
                   <li key={r.title} className="group relative min-h-52 overflow-hidden rounded-2xl border border-border bg-background/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-primary/50 hover:bg-primary/[0.04]">
                     <Reveal delay={i * 80}>
                       <span aria-hidden className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-primary transition-transform duration-500 group-hover:scale-x-100" />
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start">
                         <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                           <Icon className="size-4" aria-hidden />
                         </span>
-                        <span className="font-mono text-xs tracking-[0.16em] text-muted-foreground transition-colors duration-300 group-hover:text-primary">0{i + 1}</span>
                       </div>
                       <h3 className="font-display mt-6 text-base font-semibold leading-tight tracking-[-0.02em]">{r.title}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.text}</p>
@@ -199,13 +196,56 @@ function Index() {
   );
 }
 
-function ContactSection() {
+export function ContactSection() {
   const [sent, setSent] = useState(false);
+  const [service, setService] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string; message?: string }>({});
+
+  async function submitEnquiry(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (sending) return;
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    const name = String(values.get("name") ?? "").trim();
+    const email = String(values.get("email") ?? "").trim();
+    const message = String(values.get("message") ?? "").trim();
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const errors: { name?: string; email?: string; message?: string } = {};
+    if (!name) errors.name = "Please enter your name.";
+    if (!email) errors.email = "Please enter your email address.";
+    else if (emailInput.validity.typeMismatch) errors.email = "Please enter a valid email address.";
+    if (!message) errors.message = "Please tell us about your project.";
+    setFieldErrors(errors);
+    const firstInvalid = errors.name ? "name" : errors.email ? "email" : errors.message ? "message" : null;
+    if (firstInvalid) {
+      (form.elements.namedItem(firstInvalid) as HTMLElement | null)?.focus();
+      return;
+    }
+    setSending(true);
+    setError("");
+    try {
+      const response = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, company: values.get("company"), service: values.get("service"), message }),
+      });
+      if (!response.ok) throw new Error("Enquiry could not be sent");
+      form.reset();
+      setService("");
+      setSent(true);
+    } catch {
+      setError("We couldn't send your enquiry. Please try again or email us directly at info.quadtricks@gmail.com.");
+    } finally {
+      setSending(false);
+    }
+  }
   return (
     <section id="contact" className="scroll-mt-24 px-4 sm:px-5 pb-28 pt-24 md:pt-[30vh]">
       <div className="mx-auto max-w-5xl">
         <Reveal className="text-center">
-          <p className="label"><span className="text-primary">[05]</span> Contact</p>
+          <p className="label">Contact</p>
           <h2 className="font-display mt-4 text-[2.6rem] font-extrabold leading-[0.95] min-[400px]:text-5xl md:text-7xl">
             <span className="text-chrome">Let's build</span><br /><span className="text-primary">tomorrow</span>.
           </h2>
@@ -221,33 +261,31 @@ function ContactSection() {
                 </div>
               ))}
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="grid gap-4">
-              {sent ? (
-                <div className="py-12 text-center">
-                  <p className="font-display text-3xl font-bold text-primary">Transmission received.</p>
-                  <p className="mt-3 text-muted-foreground">We'll be in touch within one business day.</p>
-                </div>
-              ) : (
-                <>
+            <form noValidate onSubmit={submitEnquiry} className="grid gap-4" aria-busy={sending}>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <input required placeholder="Your name" className="field" />
-                    <input required type="email" placeholder="Email" className="field" />
+                    <div><label htmlFor="enquiry-name" className="sr-only">Your name (required)</label><input id="enquiry-name" required name="name" autoComplete="name" maxLength={120} placeholder="Your name *" aria-invalid={Boolean(fieldErrors.name)} aria-describedby={fieldErrors.name ? "enquiry-name-error" : undefined} onChange={() => setFieldErrors((current) => ({ ...current, name: "" }))} className="field aria-[invalid=true]:border-primary" />{fieldErrors.name && <p id="enquiry-name-error" className="mt-1.5 text-sm text-red-300">{fieldErrors.name}</p>}</div>
+                    <div><label htmlFor="enquiry-email" className="sr-only">Email (required)</label><input id="enquiry-email" required name="email" autoComplete="email" maxLength={254} type="email" placeholder="Email *" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "enquiry-email-error" : undefined} onChange={() => setFieldErrors((current) => ({ ...current, email: "" }))} className="field aria-[invalid=true]:border-primary" />{fieldErrors.email && <p id="enquiry-email-error" className="mt-1.5 text-sm text-red-300">{fieldErrors.email}</p>}</div>
                   </div>
-                  <input placeholder="Company (optional)" className="field" />
-                  <Select name="service">
-                    <SelectTrigger className="field h-auto text-base text-left data-[placeholder]:text-muted-foreground"><SelectValue placeholder="What do you need?" /></SelectTrigger>
-                    <SelectContent className="rounded-xl border-border bg-popover/95 p-1 backdrop-blur-xl">
-                      {[...services.map((x) => x.title), "Not sure yet"].map((t) => <SelectItem key={t} value={t} className="cursor-pointer rounded-lg py-2.5 text-sm focus:bg-primary/15 focus:text-foreground">{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <textarea required rows={4} placeholder="Tell us about your project — goals, timeline, links, anything useful" className="field" />
-                  <button className="btn-glow w-fit">Send enquiry →</button>
-                </>
-              )}
+                  <input name="company" autoComplete="organization" maxLength={160} aria-label="Company (optional)" placeholder="Company (optional)" className="field" />
+                  <AnimatedDropdownMenu name="service" value={service} options={[...services.map((x) => x.title), "Not sure yet"].map((label) => ({ label, onClick: () => setService(label) }))}>
+                    {service || "What do you need?"}
+                  </AnimatedDropdownMenu>
+                  <div><textarea required name="message" maxLength={5000} aria-label="Tell us about your project" aria-invalid={Boolean(fieldErrors.message)} aria-describedby={fieldErrors.message ? "enquiry-message-error" : undefined} onChange={() => setFieldErrors((current) => ({ ...current, message: "" }))} rows={4} placeholder="Tell us about your project — goals, timeline, links, anything useful" className="field aria-[invalid=true]:border-primary" />{fieldErrors.message && <p id="enquiry-message-error" className="mt-1.5 text-sm text-red-300">{fieldErrors.message}</p>}</div>
+                  {error && <p role="alert" className="text-sm leading-relaxed text-red-300">{error}</p>}
+                  <button type="submit" disabled={sending} className="btn-glow w-fit disabled:cursor-wait disabled:opacity-60">{sending ? "Sending…" : "Send enquiry →"}</button>
             </form>
           </div>
         </Reveal>
       </div>
+      {sending && <LogoLoader label="Sending enquiry" />}
+      <Dialog open={sent} onOpenChange={setSent}>
+        <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-3xl border-border bg-background p-7 text-center shadow-2xl sm:rounded-3xl">
+          <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary/15 text-primary"><Check aria-hidden className="size-7" /></div>
+          <DialogTitle className="font-display mt-1 text-2xl font-semibold">Enquiry sent</DialogTitle>
+          <DialogDescription className="text-sm leading-relaxed">Thanks for reaching out. We'll be in touch within one working day.</DialogDescription>
+          <DialogClose asChild><button type="button" className="btn-glow mt-2 justify-center">Done</button></DialogClose>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
@@ -281,10 +319,9 @@ function ProjectCard({ p, i }: { p: Project; i: number }) {
   return (
     <motion.article
       initial={reducedMotion ? false : { opacity: 0, y: 28 }}
-      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+      {...(!reducedMotion && { whileInView: { opacity: 1, y: 0 } })}
       viewport={{ once: true, amount: 0.18 }}
       transition={{ duration: 0.48, delay: Math.min(i, 5) * 0.055, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={reducedMotion ? undefined : { y: -4 }}
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-transparent shadow-[0_18px_44px_-30px_color-mix(in_oklch,var(--foreground)_60%,transparent)] transition-colors duration-300 focus-within:border-primary/80 ${i === 0 ? "border-primary/65" : "border-border hover:border-primary/55"}`}
     >
       <div className="relative h-36 overflow-hidden border-b border-border bg-muted/25 sm:h-40">
@@ -294,9 +331,7 @@ function ProjectCard({ p, i }: { p: Project; i: number }) {
         {!webProject && <div aria-hidden className="pointer-events-none absolute left-3 top-3 rounded-full border border-border/70 bg-background/80 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground backdrop-blur-sm">Mobile</div>}
       </div>
       <div className="flex min-w-0 flex-1 flex-col bg-background/80 p-4 backdrop-blur-sm">
-        <div className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.11em] text-muted-foreground">
-          <span className="text-primary">0{i + 1}</span>
-          <span className="h-px w-5 bg-border" />
+        <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.11em] text-muted-foreground">
           <span className="truncate">{p.type}</span>
         </div>
         <h3 className="font-display break-words text-base font-semibold leading-tight tracking-[-0.02em] sm:text-lg">{p.title}</h3>

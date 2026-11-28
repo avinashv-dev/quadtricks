@@ -1,10 +1,10 @@
 export const services = [
-  { n: "01", title: "Website Design & Development", text: "Fast, modern websites that look sharp on every screen and are easy for you to update." },
-  { n: "02", title: "Web Application Development", text: "Custom web apps, dashboards and portals built around how your business actually works." },
-  { n: "03", title: "Mobile Application Development", text: "iOS and Android apps from first idea to app-store launch." },
-  { n: "04", title: "Logo Design & Brand Identity", text: "Logos, colours and brand guidelines that make you instantly recognisable." },
-  { n: "05", title: "Animation & Promotional Videos", text: "Motion graphics and promo videos that explain your product and grab attention." },
-  { n: "06", title: "Cloud Services & Solutions", text: "Hosting, deployment and cloud setup that keeps your product fast, secure and online." },
+  { title: "Website Design & Development", text: "Fast modern websites built with responsive designs that look great and work smoothly across all devices." },
+  { title: "Web Application Development", text: "Custom web apps, dashboards and portals built around how your business actually works." },
+  { title: "Mobile Application Development", text: "Android and iOS apps from first idea to app-store launch." },
+  { title: "Logo Design & Brand Identity", text: "Logos, colours and brand guidelines that make you instantly recognisable." },
+  { title: "Animation & Promotional Videos", text: "Motion graphics and promo videos that explain your product and grab attention." },
+  { title: "Cloud Services & Solutions", text: "Hosting, deployment and cloud solutions that keeps your product fast, secure and online." },
 ];
 
 export const reasons = [
@@ -16,7 +16,7 @@ export const reasons = [
 
 export const process = [
   { step: "Discover", text: "We learn your business and agree the scope.", items: ["A written scope", "A project plan", "A quote"] },
-  { step: "Design", text: "You see it before we build it.", items: ["Wireframes", "Visual designs", "A clickable prototype where useful"] },
+  { step: "Design", text: "You see it before we build it.", items: ["Visual designs", "A clickable prototype where useful"] },
   { step: "Build", text: "Development in the open, with regular check-ins.", items: ["Working previews", "Device testing", "Progress updates"] },
   { step: "Launch", text: "We deploy, hand over and document everything.", items: ["Deployment", "Full ownership", "Documentation"] },
   { step: "Support", text: "One year of included support.", items: ["Bug fixes for 12 months", "Small content changes", "Clear quotes for anything new"] },
@@ -55,7 +55,7 @@ export function projectImageSrcSet(source: string | undefined) {
 const sharedTechnologies = ["React", "TypeScript", "Tailwind CSS", "Vite", "Framer Motion", "TanStack Router"];
 
 export const projects: Project[] = [
-  { title: "Ridoz Style", type: "Web Application", text: "A website for an innerwear brand that sells to both retail customers and wholesale buyers.", images: ["/ridoz/1.webp", "/ridoz/2.webp", "/ridoz/3.webp", "/ridoz/4.webp", "/ridoz/5.webp", "/ridoz/6.webp"], coverImage: "/ridoz-cover.webp", showcaseVideo: "/ridoz/ridoz-video.webm", device: "web", siteUrl: "https://ridoz.vercel.app", technologies: sharedTechnologies, clientGoals: ["Establish A Professional And Trustworthy Online Presence", "Improve User Experience Across All Devices", "Simplify Navigation And Information Structure", "Encourage Appointment Inquiries Through Clear CTAs", "Improve Overall Site Performance And Loading Speed"], approach: "We followed a structured, user-focused approach to ensure the redesign aligned with both business objectives and user expectations.", strategyPoints: ["Conducted A Detailed Website Audit And Competitor Analysis", "Restructured Content For Better Clarity And Flow", "Designed A Clean, Modern UI Focused On Trust And Accessibility", "Implemented Responsive Layouts For Mobile And Tablet Users", "Optimized Performance And Page Loading Speed"], designUx: "The design emphasizes a calm, professional aesthetic suitable for the healthcare industry. Clean typography, balanced spacing, and a consistent color palette enhance readability and trust.", designPoints: ["Simplified Navigation Menus", "Clear Visual Hierarchy", "Accessible Design For All Age Groups", "Prominent Call-To-Action Placements"] },
+  { title: "Ridoz Style", type: "Web Application", text: "A website for an innerwear brand that sells to both retail customers and wholesale buyers.", images: ["/ridoz/1.webp", "/ridoz/2.webp", "/ridoz/3.webp", "/ridoz/4.webp", "/ridoz/5.webp", "/ridoz/6.webp"], coverImage: "/ridoz-cover.webp", showcaseVideo: "/ridoz/ridoz-video.webm", device: "web", siteUrl: "https://ridozstyle.com/", technologies: sharedTechnologies, clientGoals: ["Establish A Professional And Trustworthy Online Presence", "Improve User Experience Across All Devices", "Simplify Navigation And Information Structure", "Encourage Appointment Inquiries Through Clear CTAs", "Improve Overall Site Performance And Loading Speed"], approach: "We followed a structured, user-focused approach to ensure the redesign aligned with both business objectives and user expectations.", strategyPoints: ["Conducted A Detailed Website Audit And Competitor Analysis", "Restructured Content For Better Clarity And Flow", "Designed A Clean, Modern UI Focused On Trust And Accessibility", "Implemented Responsive Layouts For Mobile And Tablet Users", "Optimized Performance And Page Loading Speed"], designUx: "The design emphasizes a calm, professional aesthetic suitable for the healthcare industry. Clean typography, balanced spacing, and a consistent color palette enhance readability and trust.", designPoints: ["Simplified Navigation Menus", "Clear Visual Hierarchy", "Accessible Design For All Age Groups", "Prominent Call-To-Action Placements"] },
   {
     title: "Easy Basket",
     slug: "easybasket",
@@ -212,5 +212,5 @@ export const contact = {
   email: "info.quadtricks@gmail.com",
   whatsapp: ["+91 85905 53179", "+91 95627 70735"],
   location: "Kochi, India",
-  serving: "Serving India, UAE, GCC and clients worldwide.",
+  serving: "Serving India, Middle East and Worldwide.",
 };

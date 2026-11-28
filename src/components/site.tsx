@@ -1,58 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { WebShotButton } from "@/components/ui/web-shot-button";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
-import { animate, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { contact } from "@/lib/content";
 import { ArrowUp, Mail, MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Emblem3D = lazy(() => import("./Emblem3D"));
 
-function ButtonMotionController() {
-  const reducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    if (reducedMotion) return;
-
-    const selector = "button, a.inline-flex, [data-motion-button], [role=\"button\"], a.btn-glow, a.btn-glass";
-    const target = (event: Event) => event.target instanceof Element ? event.target.closest<HTMLElement>(selector) : null;
-    const enter = (event: PointerEvent) => {
-      const element = target(event);
-      if (!element || (event.relatedTarget instanceof Node && element.contains(event.relatedTarget))) return;
-      animate(element, { y: -2, scale: 1.01 }, { duration: 0.18, ease: "easeOut" });
-    };
-    const leave = (event: PointerEvent) => {
-      const element = target(event);
-      if (!element || (event.relatedTarget instanceof Node && element.contains(event.relatedTarget))) return;
-      animate(element, { y: 0, scale: 1 }, { duration: 0.2, ease: "easeOut" });
-    };
-    const press = (event: PointerEvent) => {
-      const element = target(event);
-      if (element) animate(element, { scale: 0.97 }, { duration: 0.1, ease: "easeOut" });
-    };
-    const release = (event: PointerEvent) => {
-      const element = target(event);
-      if (element) animate(element, { y: -2, scale: 1.01 }, { duration: 0.14, ease: "easeOut" });
-    };
-
-    document.addEventListener("pointerover", enter);
-    document.addEventListener("pointerout", leave);
-    document.addEventListener("pointerdown", press);
-    document.addEventListener("pointerup", release);
-    return () => {
-      document.removeEventListener("pointerover", enter);
-      document.removeEventListener("pointerout", leave);
-      document.removeEventListener("pointerdown", press);
-      document.removeEventListener("pointerup", release);
-    };
-  }, [reducedMotion]);
-
-  return null;
-}
-
 /** Full-screen 3D scene fixed behind the page; reacts to scroll and pointer. */
 export function Scene3D() {
   const [ready, setReady] = useState(false);
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
     const schedule = window.requestIdleCallback ?? ((callback: IdleRequestCallback) => window.setTimeout(callback, 1));
     const cancel = window.cancelIdleCallback ?? window.clearTimeout;
@@ -61,7 +20,7 @@ export function Scene3D() {
   }, []);
   return (
     <div className="fixed inset-0 -z-10 bg-background" aria-hidden>
-      {ready && (
+      {ready && !reducedMotion && (
         <Suspense fallback={null}>
           <Emblem3D />
         </Suspense>
@@ -92,7 +51,6 @@ export function Header() {
   const [open, setOpen] = useState(false);
   return (
     <>
-    <ButtonMotionController />
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
       <div className="glass mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3">
         <Logo />
@@ -140,7 +98,7 @@ export function Footer({ landing = false }: { landing?: boolean }) {
     <footer className={`border-t px-4 py-4 sm:px-6 sm:py-6 ${surface}`}>
       <div className="mx-auto max-w-7xl">
         <motion.div {...enter()} className="grid gap-3.5 border-b border-border pb-4 md:grid-cols-[1.25fr_0.7fr_1fr] md:items-start md:gap-6 md:pb-5">
-          <div className="max-w-sm"><Link to="/" className={`inline-flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 ${landing ? "focus-visible:ring-primary" : "focus-visible:ring-primary-glow"}`}><span className="grid size-8 place-items-center rounded-lg border border-border bg-muted/60"><img src="/quadtricks-emblem.webp" alt="" width="24" height="24" loading="lazy" decoding="async" className="size-6 object-contain" /></span><span className="font-display text-sm font-semibold tracking-[0.18em]">QUADTRICKS</span></Link><p className={`mt-2 text-sm leading-relaxed ${muted}`}>Software, web & mobile. Built by one team.</p></div>
+          <div className="max-w-sm"><Link to="/" className={`inline-flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 ${landing ? "focus-visible:ring-primary" : "focus-visible:ring-primary-glow"}`}><span className="grid size-8 place-items-center rounded-lg border border-border bg-logo-chip"><img src="/quadtricks-emblem.webp" alt="" width="24" height="24" loading="lazy" decoding="async" className="size-6 object-contain" /></span><span className="font-display text-sm font-semibold tracking-[0.18em]">QUADTRICKS</span></Link><p className={`mt-2 text-sm leading-relaxed ${muted}`}>Software, web & mobile. Built by one team.</p></div>
           <nav aria-label="Footer navigation"><p className={`font-mono text-[10px] uppercase tracking-[0.18em] ${accent}`}>Explore</p><ul className="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 md:mt-2 md:gap-y-1.5">{[...nav, { to: "#contact", label: "Contact" }].map((n) => <li key={n.to}><Link to="/" hash={n.to.slice(1)} className={`text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 ${link}`}>{n.label}</Link></li>)}</ul></nav>
           <div><p className={`font-mono text-[10px] uppercase tracking-[0.18em] ${accent}`}>Contact</p><div className="mt-1.5 space-y-1 text-sm md:mt-2 md:space-y-1.5"><a href={`mailto:${contact.email}`} className={`flex w-fit items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-2 ${mutedStrong} ${landing ? "hover:text-foreground focus-visible:ring-primary" : "hover:text-footer-foreground focus-visible:ring-primary-glow"}`}><Mail aria-hidden className={`size-4 ${accent}`} />{contact.email}</a><div className="flex flex-wrap gap-x-4 gap-y-1 md:gap-y-1.5">{contact.whatsapp.map((w) => <a key={w} href={`https://wa.me/${w.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className={`flex items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-2 ${muted} ${landing ? "hover:text-foreground focus-visible:ring-primary" : "hover:text-footer-foreground focus-visible:ring-primary-glow"}`}><MessageCircle aria-hidden className={`size-4 ${accent}`} />{w}</a>)}</div><p className={`flex items-start gap-2 ${muted}`}><MapPin aria-hidden className={`mt-0.5 size-4 shrink-0 ${accent}`} /><span>{contact.location}<span className="mt-0.5 block">{contact.serving}</span></span></p></div></div>
         </motion.div>

@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { Check, ChevronRight, Circle } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Circle } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -168,6 +169,41 @@ const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTML
 };
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 
+type AnimatedDropdownMenuProps = {
+  options: { label: string; onClick: () => void; Icon?: React.ReactNode }[];
+  children: React.ReactNode;
+  value?: string;
+  name?: string;
+};
+
+function AnimatedDropdownMenu({ options, children, value = "", name }: AnimatedDropdownMenuProps) {
+  const [open, setOpen] = React.useState(false);
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+      {name && <input type="hidden" name={name} value={value} />}
+      <DropdownMenuTrigger asChild>
+        <button type="button" className="field flex min-h-14 w-full cursor-pointer items-center justify-between gap-3 text-left text-base shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary">
+          <span className={cn("min-w-0 truncate", !value && "text-muted-foreground")}>{children}</span>
+          <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: reducedMotion ? 0 : 0.2 }} className="shrink-0 text-muted-foreground"><ChevronDown aria-hidden className="size-4" /></motion.span>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" sideOffset={8} className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl border border-white/10 bg-[#111111e8] p-1 text-white shadow-[0_0_20px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+        <DropdownMenuRadioGroup value={value} className="flex flex-col gap-1">
+          {options.length ? options.map((option, index) => (
+            <DropdownMenuPrimitive.RadioItem key={option.label} value={option.label} onSelect={option.onClick} asChild>
+              <motion.div initial={reducedMotion ? false : { opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }} animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }} transition={{ duration: reducedMotion ? 0 : 0.25, delay: reducedMotion ? 0 : index * 0.035 }} className="relative flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-4 py-3 text-left text-sm text-white outline-none transition-colors focus:bg-white/10 data-[state=checked]:bg-primary/15">
+                {option.Icon}{option.label}
+              </motion.div>
+            </DropdownMenuPrimitive.RadioItem>
+          )) : <div className="px-4 py-3 text-xs text-white/65">No options</div>}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -184,4 +220,5 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
+  AnimatedDropdownMenu,
 };
